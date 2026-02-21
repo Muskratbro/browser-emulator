@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Muskratbro VM</title>
+    <style>
+        body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        #screen { width: 800px; height: 600px; }
+    </style>
+</head>
+<body>
+    <div id="screen"></div>
+
+    <!-- Load v86 library -->
+    <script src="libv86.js"></script>
+
+    <script>
+        var emulator = new V86Starter({
+            wasm_path: "v86.wasm",
+            bios: { url: "v86-master_bios_seabios.bin" },
+            vga_bios: "v86-master_bios_vgabios.bin",
+            memory_size: 64 * 1024 * 1024, // 64 MB
+            screen_container: document.getElementById("screen"),
+            autostart: true,
+        });
+    </script>
+</body>
+</html>
