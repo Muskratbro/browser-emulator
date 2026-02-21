@@ -1,72 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Muskratbro Full Desktop VM</title>
-<style>
-html, body { margin:0; padding:0; height:100%; overflow:hidden; }
-#screen { width:100%; height:100%; display:block; }
-#controls {
-    position: absolute; top:10px; left:10px; z-index:1000;
-    background: rgba(0,0,0,0.6); padding:5px; border-radius:5px; color:white; font-family:sans-serif;
-}
-button { margin-right:5px; }
-</style>
+    <meta charset="UTF-8">
+    <title>Muskratbro Firefox VM</title>
+    <style>
+        html, body { margin:0; padding:0; height:100%; overflow:hidden; }
+        #screen { width:100%; height:100%; display:block; }
+    </style>
 </head>
 <body>
-<div id="screen"></div>
-<div id="controls">
-    <button id="fullscreen">Fullscreen</button>
-    <button id="reset">Reset VM</button>
-</div>
+    <div id="screen"></div>
 
-<script src="libv86.js"></script>
-<script>
-let emulator;
+    <!-- Load v86 -->
+    <script src="libv86.js"></script>
+    <script>
+        window.onload = function() {
+            const emulator = new V86Starter({
+                wasm_path: "v86.wasm",
+                bios: {
+                    'seabios': "v86-master_bios_seabios.bin",
+                    'vgabios': "v86-master_bios_vgabios.bin"
+                },
+                memory_size: 128 * 1024 * 1024, // 128MB RAM
+                vga_memory_size: 8 * 1024 * 1024, // 8MB VRAM
+                screen_container: document.getElementById("screen"),
+                autostart: true,
+                cdrom: "https://copy.sh/v86/images/firefox.iso", // prebuilt ISO with Firefox auto-start
+                network_relay_url: "wss://relay.copy.sh:443/", // optional internet
+            });
 
-function startVM() {
-    if(typeof V86Starter === "undefined") {
-        console.error("V86Starter not loaded! Check libv86.js path.");
-        return;
-    }
-
-    emulator = new V86Starter({
-        wasm_path: "v86.wasm",
-        bios: {
-            'seabios': "v86-master_bios_seabios.bin",
-            'vgabios': "v86-master_bios_vgabios.bin"
-        },
-        memory_size: 256*1024*1024,       // 256MB RAM
-        vga_memory_size: 16*1024*1024,    // 16MB VRAM
-        screen_container: document.getElementById("screen"),
-        autostart: true,
-        cdrom: "https://copy.sh/v86/images/alpine-desktop.iso", // full interactive desktop
-        network_relay_url: "wss://relay.copy.sh:443/",
-        bios_debug: true,
-        autoconsole: true,
-        disable_keyboard_capture: false
-    });
-
-    // Optional: log VM serial output
-    emulator.add_listener("serial0-output-char", char => console.log(char));
-}
-
-// Start VM immediately
-startVM();
-
-// Fullscreen and reset controls
-document.getElementById("fullscreen").onclick = () => {
-    const screen = document.getElementById("screen");
-    if(screen.requestFullscreen) screen.requestFullscreen();
-    else if(screen.webkitRequestFullscreen) screen.webkitRequestFullscreen();
-};
-
-document.getElementById("reset").onclick = () => {
-    if(emulator) {
-        emulator.stop();
-        startVM();
-    }
-};
-</script>
+            // Optional: log serial output for debugging
+            emulator.add_listener("serial0-output-char", function(char) {
+                console.log(char);
+            });
+        };
+    </script>
 </body>
 </html>
