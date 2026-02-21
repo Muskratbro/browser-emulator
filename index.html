@@ -5,23 +5,24 @@
     <title>Muskratbro VM</title>
     <style>
         body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        #screen { width: 800px; height: 600px; }
+        #screen { width: 800px; height: 600px; background: #000; }
     </style>
 </head>
 <body>
     <div id="screen"></div>
 
-    <!-- Load v86 library -->
-    <script src="libv86.js"></script>
-
+    <script src="build/libv86.js"></script>
     <script>
-        var emulator = new V86Starter({
+        const emulator = new V86Starter({
             wasm_path: "v86.wasm",
             bios: { url: "v86-master_bios_seabios.bin" },
-            vga_bios: "v86-master_bios_vgabios.bin",
-            memory_size: 64 * 1024 * 1024, // 64 MB
+            vga_bios: { url: "v86-master_bios_vgabios.bin" },
             screen_container: document.getElementById("screen"),
+            memory_size: 64 * 1024 * 1024, // 64 MB RAM for Linux
             autostart: true,
+            cdrom: { url: "https://copy.sh/v86/images/linux/tinycore.iso" },
+            // optional: add serial console in devtools
+            serial_container: document.body
         });
     </script>
 </body>
